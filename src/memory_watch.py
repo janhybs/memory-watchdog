@@ -36,13 +36,11 @@ def plot_graph(values, height=15, point=u'▉', space=' '):
     print ('{:<' + str(vla) + '}{:>' + str(vlb) + '}').format(values[0], values[-1])
 
 
-def print_pid_history(items, pid):
+def get_pid_history(items, pid):
     result = list()
     for item in items:
         if pid in item:
-            print item[pid],
             result.append(int(item[pid]))
-    print
     return result
 
 
@@ -67,7 +65,7 @@ if len(args) > 1:
 
 print 'Watching memory usage (max: {limit}, sleep: {duration})'.format(limit=limit, duration=duration)
 while True:
-    output = subprocess.check_output("ps aux --sort '-rss' --cols 200 | head -n 20", shell=True)
+    output = subprocess.check_output("ps aux --sort '-rss' --cols 200 | head -n 200", shell=True)
     lines = output.splitlines()
     headers = re.split(r'\s+', lines[0], 10)
     del lines[0]
@@ -97,10 +95,11 @@ while True:
 
     for pid, rss in pairs.items():
         if rss > limit:
-            print '\nTerminating {name}:{pid} ({rss} MB), history: '.format(pid=pid, rss=rss, name=get_name_by_pid(pid))
+            print '\nTerminating {name}:{pid} ({rss} MB)'.format(pid=pid, rss=rss, name=get_name_by_pid(pid))
             subprocess.check_call('kill -9 {pid}'.format(pid=pid), shell=True)
 
-            values = print_pid_history(measurements, pid)
+            values = get_pid_history(measurements, pid)
             plot_graph(values)
+            print 'History: ' + ' '.join([str(x) for x in values])
 
     time.sleep(duration)

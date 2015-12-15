@@ -63,7 +63,10 @@ if len(args) > 0:
 if len(args) > 1:
     duration = float(args[1])
 
-print 'Watching memory usage (max: {limit}, sleep: {duration})'.format(limit=limit, duration=duration)
+assert limit >= 100, "To ensure machine safety, threashold must be greater than 100 MB"
+assert duration >= 0.1, "To ensure machine safety, duration must be greater than 100 ms"
+
+print 'Watching memory usage (max: {limit} MB, check interval: {duration:1.2f} ms)'.format(limit=limit, duration=float(duration*1000))
 while True:
     output = subprocess.check_output("ps aux --sort '-rss' --cols 200 | head -n 200", shell=True)
     lines = output.splitlines()
